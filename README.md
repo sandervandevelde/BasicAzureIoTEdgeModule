@@ -19,6 +19,7 @@ Setup 1 is:
 - IoT Edge 1.3 runtime
 - edgeAgent 1.3 and edgeHub 1.3
 - Module svelde/iot-edge-basic-ingest:0.0.3-amd64
+- See also deployment.manifest - Scenario1.json file
 
 outcome: negative
 
