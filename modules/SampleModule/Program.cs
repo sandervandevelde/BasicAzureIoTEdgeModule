@@ -53,17 +53,18 @@ namespace SampleModule
             await ioTHubModuleClient.OpenAsync();
             Console.WriteLine("IoT Hub module client started.");
 
-            // Attach callback for Twin desired properties updates
-            await ioTHubModuleClient.SetDesiredPropertyUpdateCallbackAsync(onDesiredPropertiesUpdate, ioTHubModuleClient);
-            System.Console.WriteLine("SetDesiredPropertyUpdateCallback attached");
-
-            // Execute one-time callback method for EdgeHub Twin desired properties updates
+            // 1. Execute one-time callback method for EdgeHub Twin desired properties updates
             var twin = await ioTHubModuleClient.GetTwinAsync();
             await onDesiredPropertiesUpdate(twin.Properties.Desired, ioTHubModuleClient);
             System.Console.WriteLine("SetDesiredPropertyUpdateCallback one-time executed");
 
-            // Register callback to be called when a message is received by the module
+            // 2. Attach callback for Twin desired properties updates. If any changes are there, these will be picked up now.
+            await ioTHubModuleClient.SetDesiredPropertyUpdateCallbackAsync(onDesiredPropertiesUpdate, ioTHubModuleClient);
+            System.Console.WriteLine("SetDesiredPropertyUpdateCallback attached");
+
+            // 3. After twin settings are picked up, register callback to be called when a message is received by the module
             await ioTHubModuleClient.SetInputMessageHandlerAsync("input1", PipeMessage, ioTHubModuleClient);
+
             System.Console.WriteLine("SetInputMessageHandler 'input1' attached");
         }
 
