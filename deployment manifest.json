@@ -20,7 +20,7 @@
                     },
                     "basicingest": {
                         "settings": {
-                            "image": "svelde/iot-edge-basic-ingest:0.0.2-amd64",
+                            "image": "svelde/iot-edge-basic-ingest:0.0.3-amd64",
                             "createOptions": ""
                         },
                         "type": "docker",
