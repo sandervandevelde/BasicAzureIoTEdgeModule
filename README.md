@@ -10,7 +10,7 @@ Why? I don't know...
 
 It feels like 'MessageResponse.Completed' is ignored.
 
-I tried to roll it out on both runtime 1.2 and runtime 1.1 (version 0.0.2 is build with this setting https://docs.microsoft.com/en-us/azure/iot-edge/how-to-vs-code-develop-module?view=iotedge-2018-06#set-iot-edge-runtime-version)
+I tried to roll it out on both runtime 1.2 and runtime 1.1 (version 0.0.2 is build with this setting https://docs.microsoft.com/en-us/azure/iot-edge/how-to-vs-code-develop-module?view=iotedge-2018-06#set-iot-edge-runtime-version). Both resulted in the same negative performance.
 
 
 ## Test scenarios
