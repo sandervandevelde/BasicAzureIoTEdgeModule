@@ -50,22 +50,32 @@ namespace SampleModule
             ModuleClient ioTHubModuleClient = await ModuleClient.CreateFromEnvironmentAsync(settings);
             Console.WriteLine("IoT Hub module client created. (for 1.1 runtime)");
 
-            await ioTHubModuleClient.OpenAsync();
-            Console.WriteLine("IoT Hub module client started.");
+            ioTHubModuleClient.SetConnectionStatusChangesHandler(onConnectionStatusChanges);
 
-            // 1. Execute one-time callback method for EdgeHub Twin desired properties updates
+            // 1. Attach callback for Twin desired properties updates. If any changes are there, these will be picked up now.
+            await ioTHubModuleClient.SetDesiredPropertyUpdateCallbackAsync(onDesiredPropertiesUpdate, ioTHubModuleClient);
+            System.Console.WriteLine("SetDesiredPropertyUpdateCallback attached");
+
+            // 2. Execute one-time callback method for EdgeHub Twin desired properties on start up to have the latest known set
+            // Yes, that callback is attachted first to prevent losing change events when the listener is not started soon enough.
             var twin = await ioTHubModuleClient.GetTwinAsync();
             await onDesiredPropertiesUpdate(twin.Properties.Desired, ioTHubModuleClient);
             System.Console.WriteLine("SetDesiredPropertyUpdateCallback one-time executed");
 
-            // 2. Attach callback for Twin desired properties updates. If any changes are there, these will be picked up now.
-            await ioTHubModuleClient.SetDesiredPropertyUpdateCallbackAsync(onDesiredPropertiesUpdate, ioTHubModuleClient);
-            System.Console.WriteLine("SetDesiredPropertyUpdateCallback attached");
-
             // 3. After twin settings are picked up, register callback to be called when a message is received by the module
             await ioTHubModuleClient.SetInputMessageHandlerAsync("input1", PipeMessage, ioTHubModuleClient);
 
+            await ioTHubModuleClient.OpenAsync();
+            Console.WriteLine("IoT Hub module client started.");
+
             System.Console.WriteLine("SetInputMessageHandler 'input1' attached");
+        }
+
+        static void onConnectionStatusChanges(ConnectionStatus status, ConnectionStatusChangeReason reason)
+        {
+            Console.WriteLine("***");
+            Console.WriteLine($"*** Connection status changed! Status: {status}; Reason: {reason}");
+            Console.WriteLine("***");
         }
 
         static async Task<MessageResponse> PipeMessage(Message message, object userContext)
@@ -99,19 +109,17 @@ namespace SampleModule
 
         private static async Task onDesiredPropertiesUpdate(TwinCollection desiredProperties, object userContext)
         {
-            Console.WriteLine("One or more device twin desired properties changed:");
-            Console.WriteLine(JsonConvert.SerializeObject(desiredProperties));
-        
-            var client = userContext as ModuleClient;
-        
+            Console.WriteLine($"One or more device twin desired properties changed: {JsonConvert.SerializeObject(desiredProperties)}");
+              
             var reportedProperties = new TwinCollection
             {
                 ["DateTimeLastDesiredPropertyChangeReceived"] = DateTime.Now
             };
-        
+
+            var client = userContext as ModuleClient;
             await client.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
         
-            Console.WriteLine("Sent current time as reported property to device twin");
+            Console.WriteLine("Current date/time sent as reported property to device twin");
         }
     }
 }
